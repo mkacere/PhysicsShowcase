@@ -31,12 +31,12 @@ Before you begin, ensure you have met the following requirements:
      ```
 
 2. **Build the Project:**
-   - cd to the Root Folder (PhysicsShowcase)
-    ```bash
-    mkdir build && cd build
-    make clean #optional
-    cmake ..
-    make
+   - cd to the Root Folder (PhysicsShowcase):
+        ```bash
+        mkdir build && cd build
+        make clean #optional
+        cmake ..
+        make
 3. **Run Executable**
   ```bash
    ./PhysicsShowcase
