@@ -1,6 +1,6 @@
 # C++ Showcase Project
 
-This C++ project showcases my abilities using SFML and CMake.
+This C++ project showcases my abilities using SFML!
 
 ## Prerequisites
 
