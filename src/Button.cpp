@@ -4,7 +4,7 @@ sf::Font Button::m_font;
 
 sf::Font &Button::getFont()
 {
-    if (!m_font.loadFromFile("assets/fonts/Arial.ttf"))
+    if (!m_font.loadFromFile("../assets/fonts/Arial.ttf"))
     {
         std::cerr << "Error loading font\n";
     }

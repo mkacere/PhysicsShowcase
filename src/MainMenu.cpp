@@ -20,7 +20,7 @@ MainMenu::~MainMenu()
 
 void MainMenu::Init()
 {
-    m_context->m_assets->AddFont(MAIN_FONT, "assets/fonts/Arial.ttf");
+    m_context->m_assets->AddFont(MAIN_FONT, "../assets/fonts/Arial.ttf");
     m_mainTitle.setFont(m_context->m_assets->GetFont(MAIN_FONT));
     m_mainTitle.setString("Physics Showcase");
     m_mainTitle.setPosition(m_context->m_window->getSize().x / 2 - m_mainTitle.getLocalBounds().width / 2, 20);
