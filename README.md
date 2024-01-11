@@ -32,7 +32,9 @@ Before you begin, ensure you have met the following requirements:
 
 2. **Build the Project:**
     ```bash
-    mkdir build && cd build # cd PhysicsShowcase first
+    # cd PhysicsShowcase first
+    mkdir build # only when you build for the first time
+    cd build 
     make clean # optional
     cmake ..
     make
