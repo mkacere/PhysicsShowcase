@@ -2,6 +2,7 @@
 
 #include "DVD.h"
 #include "DoublePendulum.h"
+#include "Plinko.h"
 
 #include <memory>
 
@@ -38,7 +39,7 @@ void MainMenu::Init()
     m_imageOutline.setOutlineThickness(4);
     m_imageOutline.setOutlineColor(sf::Color::Cyan);
 
-    m_buttonNames = {"DVD", "Double Pendulum", "somethingelse", "2", "1"};
+    m_buttonNames = {"DVD", "Double Pendulum", "Plinko", "2", "1", "josh", "is", "zestyyyyy af"};
     for (size_t i = 0; i < m_buttonNames.size(); ++i)
     {
         m_buttons.emplace_back(sf::Vector2f(50, (m_context->m_window->getSize().y / 2) + i * 60), sf::Color::Blue, m_buttonNames[i]);
@@ -49,7 +50,13 @@ void MainMenu::Init()
         m_buttons[0].setSelected(true);
     }
 
-    m_imageLinks = {"../assets/previews/Screenshot 2024-01-07 at 12.41.19 AM.png", "../assets/previews/DoublePendPrev.jpg", "../assets/previews/pngtree-wealth-economy-stocks-png-image_5402131.png", "../assets/previews/download.jpeg", ""};
+    m_imageLinks = {"../assets/previews/Screenshot 2024-01-07 at 12.41.19 AM.png", 
+                    "../assets/previews/DoublePendPrev.jpg", 
+                    "../assets/previews/pngtree-wealth-economy-stocks-png-image_5402131.png", 
+                    "../assets/previews/download.jpeg", 
+                    "",
+                    "",
+                    ""};
 
     if (!m_imageTexture.loadFromFile(m_imageLinks[0]))
     {
@@ -189,11 +196,16 @@ void MainMenu::handleStateTransition()
         switch (returnedIndex)
         {
         case 0:
+            std::cout << "case " << returnedIndex << " was called\n";
             m_context->m_states->Add(std::make_unique<DVD>(m_context), true);
             break;
         case 1:
-            std::cout << "case 1 gets called\n";
+            std::cout << "case " << returnedIndex << " was called\n";
             m_context->m_states->Add(std::make_unique<DoublePendulum>(m_context), true);
+            break;
+        case 2:
+            std::cout << "case " << returnedIndex << " was called\n";
+            m_context->m_states->Add(std::make_unique<Plinko>(m_context), true);
             break;
         }
     }
