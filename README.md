@@ -32,8 +32,10 @@ Before you begin, ensure you have met the following requirements:
 
 2. **Build the Project:**
     ```bash
-    mkdir build && cd build # cd PhysicsShowcase first
-    make clean # optional
+    # cd PhysicsShowcase first
+    mkdir build
+    cd build 
+    make clean
     cmake ..
     make
 3. **Run Executable**
