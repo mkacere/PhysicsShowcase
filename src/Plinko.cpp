@@ -28,7 +28,7 @@ void Plinko::ProcessInput() {
 
 void Plinko::Update(sf::Time deltaTime) {
     const float gravity = 1500.0f;      // Adjust gravity as needed
-    const float maxFallSpeed = 1000.0f; // Adjust maximum fall speed as needed
+    const float maxFallSpeed = 2000.0f; // Adjust maximum fall speed as needed
 
     for (auto& ball : m_balls) {
         ball.update(deltaTime.asSeconds(), gravity, maxFallSpeed);
@@ -57,7 +57,7 @@ void Plinko::Update(sf::Time deltaTime) {
                 ball.setVelocity(newVelocity);
 
                 // Move the ball slightly away from the peg to avoid immediate re-collision
-                sf::Vector2f newPosition = ball.getPosition() + normal * (combinedRadius - distance) * 1.01f;
+                sf::Vector2f newPosition = ball.getPosition() + normal * (combinedRadius - distance) * 2.5f;
                 ball.setPosition(newPosition);
             }
         }
