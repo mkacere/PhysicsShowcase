@@ -1,14 +1,16 @@
 #include "Plinko.h"
 #include "MainMenu.h"
 
-Plinko::Plinko(std::shared_ptr<Context>& context) : m_context(context) {
+Plinko::Plinko(std::shared_ptr<Context>& context) : m_context(context), 
+    kPegOffset(135.f, 100.f), kPegScale(0.87f){
     createPegs();
 }
 
 Plinko::~Plinko() {
 }
 
-void Plinko::Init() {
+void Plinko::Init()
+{
     // Initialize any necessary components here
 }
 
@@ -27,8 +29,11 @@ void Plinko::ProcessInput() {
 }
 
 void Plinko::Update(sf::Time deltaTime) {
-    const float gravity = 1500.0f;      // Adjust gravity as needed
-    const float maxFallSpeed = 2000.0f; // Adjust maximum fall speed as needed
+    const float gravity = 1250.0f * kPegScale;      // Adjust gravity as needed
+    const float maxFallSpeed = 450.0f * kPegScale; // Adjust maximum fall speed as needed
+    const float bounceFactor = 0.5f * kPegScale;
+    const float minBounceMagnitude = 78.5f * kPegScale;
+
 
     for (auto& ball : m_balls) {
         ball.update(deltaTime.asSeconds(), gravity, maxFallSpeed);
@@ -51,13 +56,21 @@ void Plinko::Update(sf::Time deltaTime) {
 
                 // Calculate the new velocity after collision (reflect the velocity)
                 float dotProduct = ball.getVelocity().x * normal.x + ball.getVelocity().y * normal.y;
-                sf::Vector2f newVelocity = (ball.getVelocity() - 2.0f * dotProduct * normal) * 0.5f;
+                sf::Vector2f newVelocity = (ball.getVelocity() - 2.0f * dotProduct * normal) * bounceFactor;
+
+
+                // Check if the magnitude is below the threshold
+                float newVelocityMagnitude = std::sqrt(newVelocity.x * newVelocity.x + newVelocity.y * newVelocity.y);
+                if (newVelocityMagnitude < minBounceMagnitude) {
+                    // Normalize the new velocity and multiply by the minimum bounce magnitude
+                    newVelocity = normalize(newVelocity) * minBounceMagnitude;
+                }
 
                 // Set the new velocity
                 ball.setVelocity(newVelocity);
 
                 // Move the ball slightly away from the peg to avoid immediate re-collision
-                sf::Vector2f newPosition = ball.getPosition() + normal * (combinedRadius - distance) * 2.5f;
+                sf::Vector2f newPosition = ball.getPosition() + normal * (combinedRadius - distance) * 1.001f;
                 ball.setPosition(newPosition);
             }
         }
@@ -72,8 +85,6 @@ void Plinko::Update(sf::Time deltaTime) {
         m_balls.end()
     );
 }
-
-
 
 
 void Plinko::Draw() {
@@ -96,22 +107,21 @@ void Plinko::createPegs() {
     m_pegs.clear(); // Clear any existing pegs
 
     // Rows (expandable)
-    size_t numRows = 7;
-    float xSpacing = 40.0f;
-    float ySpacing = 40.0f;
-    sf::Vector2f totalOffset(125.f, -65.f);
+    numRows = 7;
+    const float xSpacing = 40.0f * kPegScale;
+    const float ySpacing = 40.0f * kPegScale;
 
     for (size_t row = 0; row < numRows; ++row) {
         size_t numPegsInRow = 3 + 1 * row; // Increase by 2 for each row
 
         for (size_t i = 0; i < numPegsInRow; ++i) {
-            sf::CircleShape peg(5.0f);
+            sf::CircleShape peg(5.0f * kPegScale);
             peg.setFillColor(sf::Color::White);
 
-            float xOffset = (m_context->m_window->getSize().x / 2) - (numPegsInRow * xSpacing / 2.0f) + (i * xSpacing); // Center horizontally
-            float yOffset = 100.0f + row * ySpacing;
+            float xOffset = (m_context->m_window->getSize().x / 2) - (numPegsInRow * xSpacing / 2.0f) + (i * xSpacing);
+            float yOffset = row * ySpacing;
 
-            peg.setPosition(xOffset + totalOffset.x, yOffset + totalOffset.y);
+            peg.setPosition(xOffset + kPegOffset.x, yOffset + kPegOffset.y);
 
             m_pegs.push_back(peg);
         }
@@ -126,31 +136,46 @@ void Plinko::handleKeyPressed(sf::Keyboard::Key key) {
             m_context->m_states->Add(std::make_unique<MainMenu>(m_context), true);
             break;
         case sf::Keyboard::Space:
-            addBall();
+            addBall(10.0f);
             break;
         default:
             break;
     }
 }
 
-void Plinko::addBall() {
+void Plinko::addBall(const float ballRadius) {
     // Add a new PlinkoBall to the vector
-    PlinkoBall newBall(10.0f);
+    PlinkoBall newBall(ballRadius * kPegScale);
 
     float randomXVelocity = static_cast<float>(std::rand()) / static_cast<float>(RAND_MAX) * 10.0f - 5.f;
+    randomXVelocity *= kPegScale;  // Scale the random velocity
 
     newBall.setVelocity(sf::Vector2f(randomXVelocity, 0.0f)); // Start with zero velocity
 
-    float stretch = 20.f;
-    float offsetx = 125.f;
+    const float xSpan = 22.f * kPegScale;
 
     // Define the x-range based on totalOffset from createPegs
-    float minX = (m_context->m_window->getSize().x / 2) - stretch;
-    float maxX = (m_context->m_window->getSize().x / 2) + stretch;
+    const float minX = (m_context->m_window->getSize().x / 2) - xSpan;
+    const float maxX = (m_context->m_window->getSize().x / 2) + xSpan;
 
     // Randomly set the x-position within the defined range
-    float randomX = static_cast<float>(std::rand() % static_cast<int>(maxX - minX)) + minX;
-    newBall.setPosition(sf::Vector2f(randomX, 0.f) + sf::Vector2f(offsetx - 10.0f, 0));
+    float randomX = static_cast<float>(std::rand()) / static_cast<float>(RAND_MAX) * (maxX - minX) + minX;
+    const float scaledRadius = ballRadius * kPegScale;
+
+    // Adjust the position to ensure it stays within screen bounds
+    randomX = std::max(scaledRadius, std::min(randomX, m_context->m_window->getSize().x - scaledRadius));
+
+    newBall.setPosition(sf::Vector2f(randomX, -ballRadius * kPegScale) + sf::Vector2f(kPegOffset.x - scaledRadius, 0));
 
     m_balls.push_back(newBall);
+}
+
+sf::Vector2f Plinko::normalize(const sf::Vector2f &vector)
+{
+    float length = std::sqrt(vector.x * vector.x + vector.y * vector.y);
+        if (length != 0.0f) {
+            return vector / length;
+        } else {
+            return vector;
+        }
 }

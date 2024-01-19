@@ -6,6 +6,7 @@ class PlinkoBall{
 private:
     sf::CircleShape m_ball;
     sf::Vector2f m_velocity;
+    bool m_hasBeenScanned = false;
 
 public:
     PlinkoBall(float radius = 10.0f) : m_ball(radius) {
@@ -36,6 +37,14 @@ public:
 
     sf::Vector2f getVelocity() const {
         return m_velocity;
+    }
+
+    bool getHasBeenScanned() {
+        return m_hasBeenScanned;
+    }
+
+    void setHasBeenScanned(bool state) {
+        m_hasBeenScanned = state;
     }
 
     void update(float deltaTime, float gravity, float maxFallSpeed) {

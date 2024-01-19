@@ -12,8 +12,13 @@ class Plinko : public Engine::State {
 private:
     class
     std::shared_ptr<Context> m_context;
+    
     std::vector<PlinkoBall> m_balls;
     std::vector<sf::CircleShape> m_pegs;
+    size_t numRows;
+
+    const float kPegScale;
+    const sf::Vector2f kPegOffset;
 
 public:
     Plinko(std::shared_ptr<Context>& context);
@@ -27,8 +32,9 @@ public:
 private:
     void createPegs();
     void handleKeyPressed(sf::Keyboard::Key key);
-    void addBall();
+    void addBall(const float ballRadius);
+    size_t calculateSlotIndex(float xPos);
 
-    sf::Vector2f getTotalOffset() const;
+    sf::Vector2f normalize(const sf::Vector2f& vector);
 };
 
