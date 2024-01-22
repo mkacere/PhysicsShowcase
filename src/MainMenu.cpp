@@ -52,7 +52,7 @@ void MainMenu::Init()
 
     m_imageLinks = {"../assets/previews/Screenshot 2024-01-07 at 12.41.19 AM.png", 
                     "../assets/previews/DoublePendPrev.jpg", 
-                    "../assets/previews/pngtree-wealth-economy-stocks-png-image_5402131.png", 
+                    "../assets/previews/plinkoprev.png", 
                     "../assets/previews/download.jpeg", 
                     "",
                     "",
@@ -151,7 +151,7 @@ void MainMenu::moveButtons(int direction)
             sf::Vector2u originalSize = m_imageTexture.getSize();
 
             float scaleX = 250.0f / originalSize.x;
-            float scaleY = 250.0f / originalSize.y;
+            float scaleY = scaleX;
 
             // Set the scale and position of the sprite
             m_imageSprite.setScale(sf::Vector2f(scaleX, scaleY));
