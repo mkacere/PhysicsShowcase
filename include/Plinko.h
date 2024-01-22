@@ -17,6 +17,10 @@ private:
     std::vector<sf::CircleShape> m_pegs;
     size_t numRows;
 
+    std::vector<size_t> m_slotValues;
+    sf::Vector2f kGraphOffset;
+    float kGraphScale;
+
     const float kPegScale;
     const sf::Vector2f kPegOffset;
 
@@ -33,8 +37,11 @@ private:
     void createPegs();
     void handleKeyPressed(sf::Keyboard::Key key);
     void addBall(const float ballRadius);
-    size_t calculateSlotIndex(float xPos);
 
     sf::Vector2f normalize(const sf::Vector2f& vector);
+
+    size_t calculateSlotIndex(float xPosition);
+    void createGraph();
+    void drawGraph();
 };
 

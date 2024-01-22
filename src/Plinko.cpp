@@ -1,8 +1,10 @@
 #include "Plinko.h"
 #include "MainMenu.h"
 
-Plinko::Plinko(std::shared_ptr<Context>& context) : m_context(context), 
-    kPegOffset(135.f, 100.f), kPegScale(0.87f){
+Plinko::Plinko(std::shared_ptr<Context>& context) : m_context(context), numRows(7),
+    kPegOffset(155.f, 100.f), kPegScale(0.87f),
+    kGraphOffset(20.f, 110.f), kGraphScale(1.f){
+    createGraph();
     createPegs();
 }
 
@@ -10,8 +12,8 @@ Plinko::~Plinko() {
 }
 
 void Plinko::Init()
-{
-    // Initialize any necessary components here
+{   
+
 }
 
 void Plinko::ProcessInput() {
@@ -37,6 +39,18 @@ void Plinko::Update(sf::Time deltaTime) {
 
     for (auto& ball : m_balls) {
         ball.update(deltaTime.asSeconds(), gravity, maxFallSpeed);
+
+        float yThreshold = numRows * 40.f * kPegScale + kPegOffset.y;
+        if ((ball.getPosition().y > yThreshold) && !ball.getHasBeenScanned()) {
+            ball.setHasBeenScanned(true);
+
+            // Calculate slot index based on ball's x position
+            size_t slotIndex = calculateSlotIndex(ball.getPosition().x);
+
+            if (slotIndex < m_slotValues.size()) {
+                m_slotValues[slotIndex]++;
+            }
+        }
 
 
         // Check for collision with pegs
@@ -100,6 +114,8 @@ void Plinko::Draw() {
         m_balls[i].draw(*m_context->m_window);
     }
 
+    drawGraph();
+
     m_context->m_window->display();
 }
 
@@ -136,7 +152,11 @@ void Plinko::handleKeyPressed(sf::Keyboard::Key key) {
             m_context->m_states->Add(std::make_unique<MainMenu>(m_context), true);
             break;
         case sf::Keyboard::Space:
-            addBall(10.0f);
+            for (size_t i = 0; i < 2; i++)
+            {
+                addBall(10.f);
+            }
+            
             break;
         default:
             break;
@@ -147,10 +167,10 @@ void Plinko::addBall(const float ballRadius) {
     // Add a new PlinkoBall to the vector
     PlinkoBall newBall(ballRadius * kPegScale);
 
-    float randomXVelocity = static_cast<float>(std::rand()) / static_cast<float>(RAND_MAX) * 10.0f - 5.f;
-    randomXVelocity *= kPegScale;  // Scale the random velocity
+    //float randomXVelocity = static_cast<float>(std::rand()) / static_cast<float>(RAND_MAX) * 10.0f - 5.f;
+    //randomXVelocity *= kPegScale;  // Scale the random velocity
 
-    newBall.setVelocity(sf::Vector2f(randomXVelocity, 0.0f)); // Start with zero velocity
+    newBall.setVelocity(sf::Vector2f(0.f, 0.0f)); // Start with zero velocity
 
     const float xSpan = 22.f * kPegScale;
 
@@ -178,4 +198,51 @@ sf::Vector2f Plinko::normalize(const sf::Vector2f &vector)
         } else {
             return vector;
         }
+}
+
+size_t Plinko::calculateSlotIndex(float xPosition)
+{
+    size_t slotIndex = static_cast<size_t>((xPosition - kPegOffset.x + (numRows * 40.0f * kPegScale / 2.0f)) / (40.0f * kPegScale));
+    
+    // Ensure the slotIndex is within bounds
+    return slotIndex - 7;
+}
+
+
+void Plinko::createGraph()
+{
+    size_t numSlots = numRows + 3;
+    m_slotValues.resize(numSlots, 0);
+}
+
+void Plinko::drawGraph() {
+    sf::RenderWindow& window = *m_context->m_window;
+    sf::VertexArray graph(sf::LinesStrip);
+
+    // Calculate the position and spacing for each point on the graph
+    float graphWidth = 250.0f;
+    float graphHeight = 175.0f;
+
+    // Adjust multiplier as needed for scaling
+    float yScale = graphHeight / static_cast<float>(std::max<float>(1, *std::max_element(m_slotValues.begin(), m_slotValues.end())));
+
+    float xSpacing = graphWidth / (m_slotValues.size() - 1);
+
+    for (size_t i = 0; i < m_slotValues.size(); ++i) {
+        float xPos = kGraphOffset.x + i * xSpacing;
+        float yPos = kGraphOffset.y + graphHeight - (m_slotValues[i] * yScale);
+
+        // Add the point to the graph
+        graph.append(sf::Vertex(sf::Vector2f(xPos, yPos), sf::Color::Cyan));
+
+        // Draw the value next to the point (optional)
+        sf::Text text(std::to_string(m_slotValues[i]), m_context->m_assets->GetFont(0));
+        text.setCharacterSize(12);
+        text.setFillColor(sf::Color::White);
+        text.setPosition(xPos, yPos - 15.0f); // Adjust as needed
+        window.draw(text);
+    }
+
+    // Draw the lines connecting the points
+    window.draw(graph);
 }
