@@ -3,6 +3,7 @@
 #include "DVD.h"
 #include "DoublePendulum.h"
 #include "Plinko.h"
+#include "GravitySim.h"
 
 #include <memory>
 
@@ -39,7 +40,7 @@ void MainMenu::Init()
     m_imageOutline.setOutlineThickness(4);
     m_imageOutline.setOutlineColor(sf::Color::Cyan);
 
-    m_buttonNames = {"DVD", "Double Pendulum", "Plinko", "2", "1", "josh", "is", "zestyyyyy af"};
+    m_buttonNames = {"DVD", "Double Pendulum", "Plinko", "Gravity Sim", "1", "josh", "is", "zestyyyyy af"};
     for (size_t i = 0; i < m_buttonNames.size(); ++i)
     {
         m_buttons.emplace_back(sf::Vector2f(50, (m_context->m_window->getSize().y / 2) + i * 60), sf::Color::Blue, m_buttonNames[i]);
@@ -53,7 +54,7 @@ void MainMenu::Init()
     m_imageLinks = {"../assets/previews/Screenshot 2024-01-07 at 12.41.19 AM.png", 
                     "../assets/previews/DoublePendPrev.jpg", 
                     "../assets/previews/plinkoprev.png", 
-                    "../assets/previews/download.jpeg", 
+                    "../assets/previews/gravitysimprev.jpg", 
                     "",
                     "",
                     ""};
@@ -207,6 +208,9 @@ void MainMenu::handleStateTransition()
             std::cout << "case " << returnedIndex << " was called\n";
             m_context->m_states->Add(std::make_unique<Plinko>(m_context), true);
             break;
+        case 3:
+            std::cout << "case " << returnedIndex << " was called\n";
+            m_context->m_states->Add(std::make_unique<GravitySim>(m_context), true);
         }
     }
 }

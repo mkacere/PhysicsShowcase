@@ -1,7 +1,7 @@
 #include "Plinko.h"
 #include "MainMenu.h"
 
-Plinko::Plinko(std::shared_ptr<Context>& context) : m_context(context), numRows(7),
+Plinko::Plinko(std::shared_ptr<Context>& context) : m_context(context), numRows(7), ballsReleased(1),
     kPegOffset(155.f, 100.f), kPegScale(0.87f),
     kGraphOffset(20.f, 110.f), kGraphScale(1.f){
     createGraph();
@@ -116,6 +116,10 @@ void Plinko::Draw() {
 
     drawGraph();
 
+    DrawBallsReleased();
+
+    drawHUD();
+
     m_context->m_window->display();
 }
 
@@ -152,11 +156,22 @@ void Plinko::handleKeyPressed(sf::Keyboard::Key key) {
             m_context->m_states->Add(std::make_unique<MainMenu>(m_context), true);
             break;
         case sf::Keyboard::Space:
-            for (size_t i = 0; i < 2; i++)
+            for (size_t i = 0; i < ballsReleased; i++)
             {
                 addBall(10.f);
             }
-            
+            break;
+        case sf::Keyboard::Up:
+            ballsReleased++;
+            if (ballsReleased > 10){ ballsReleased = 1; }
+            break;
+        case sf::Keyboard::Down:
+            ballsReleased--;
+            if (ballsReleased < 1){ ballsReleased = 10; }
+            break;
+        case sf::Keyboard::R:
+            m_slotValues.assign(m_slotValues.size(), 0);
+            drawGraph();
             break;
         default:
             break;
@@ -202,10 +217,10 @@ sf::Vector2f Plinko::normalize(const sf::Vector2f &vector)
 
 size_t Plinko::calculateSlotIndex(float xPosition)
 {
-    size_t slotIndex = static_cast<size_t>((xPosition - kPegOffset.x + (numRows * 40.0f * kPegScale / 2.0f)) / (40.0f * kPegScale));
+    size_t slotIndex = static_cast<size_t>((xPosition + 5 * kPegScale - kPegOffset.x + (numRows * 40.0f * kPegScale / 2.0f)) / (40.0f * kPegScale));
     
     // Ensure the slotIndex is within bounds
-    return slotIndex - 7;
+    return std::max<size_t>(0, slotIndex - 7);
 }
 
 
@@ -245,4 +260,22 @@ void Plinko::drawGraph() {
 
     // Draw the lines connecting the points
     window.draw(graph);
+}
+
+void Plinko::DrawBallsReleased() {
+    // Draw the current number of balls being dropped
+    sf::Text ballsReleasedText("Balls Released: " + std::to_string(ballsReleased), m_context->m_assets->GetFont(0));
+    ballsReleasedText.setCharacterSize(16);
+    ballsReleasedText.setFillColor(sf::Color::White);
+    ballsReleasedText.setPosition(10.0f, 10.0f);
+    m_context->m_window->draw(ballsReleasedText);
+}
+
+void Plinko::drawHUD() const
+{
+    sf::Text rToReset("Press 'R' to reset graph                                                 Arrow keys to drop more balls!!", m_context->m_assets->GetFont(0));
+    rToReset.setCharacterSize(16);
+    rToReset.setFillColor(sf::Color::White);
+    rToReset.setPosition(10,m_context->m_window->getSize().y - 30);
+    m_context->m_window->draw(rToReset);
 }

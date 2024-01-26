@@ -24,6 +24,8 @@ private:
     const float kPegScale;
     const sf::Vector2f kPegOffset;
 
+    int ballsReleased;
+
 public:
     Plinko(std::shared_ptr<Context>& context);
     ~Plinko();
@@ -43,5 +45,8 @@ private:
     size_t calculateSlotIndex(float xPosition);
     void createGraph();
     void drawGraph();
+
+    void DrawBallsReleased();
+    void drawHUD() const;
 };
 
